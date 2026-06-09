@@ -1,4 +1,5 @@
 import pandas as pd
+import duckdb
 
 # --- 設定 ---
 INPUT_PATH = "data/fao_food_price_indices_data.csv"
@@ -37,9 +38,17 @@ def main():
     print("...")
     print(df.tail())
 
-    # --- 保存 ---
-    df.to_csv(OUTPUT_PATH, index=False)
-    print(f"保存しました: {OUTPUT_PATH}")
+    # --- DuckDBに格納 ---
+    db_path = "pipeline.duckdb"
+    con = duckdb.connect(db_path)
+
+    con.execute("CREATE OR REPLACE TABLE raw_food_prices AS SELECT * FROM df")
+
+    count = con.execute("SELECT COUNT(*) FROM raw_food_prices").fetchone()[0]
+    print(f"raw_food_prices に {count} 件を格納しました")
+
+    con.close()
+
 
 if __name__ == "__main__":
     main()

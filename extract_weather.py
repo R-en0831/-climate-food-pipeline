@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import duckdb
 from datetime import date, timedelta
 
 # --- 設定 ---
@@ -44,10 +45,24 @@ def main():
     print(f"取得件数: {len(df)} 行")
     print(df.head())
 
-    # --- CSVに保存 ---
-    output_path = "weather_tokyo.csv"
-    df.to_csv(output_path, index=False)
-    print(f"保存しました: {output_path}")
+    # --- CSVに保存（コメントアウト） ---
+    # output_path = "weather_tokyo.csv"
+    # df.to_csv(output_path, index=False)
+    # print(f"保存しました: {output_path}")
+
+    # --- DuckDBに格納 ---
+    db_path = "pipeline.duckdb"
+    con = duckdb.connect(db_path)
+
+    # 再実行に強くする：既存テーブルを作り直してから入れる（冪等性）
+    con.execute("CREATE OR REPLACE TABLE raw_weather AS SELECT * FROM df")
+
+    # 確認：格納された件数を数える
+    count = con.execute("SELECT COUNT(*) FROM raw_weather").fetchone()[0]
+    print(f"raw_weather に {count} 件を格納しました")
+
+    con.close()
+
 
 if __name__ == "__main__":
     main()
