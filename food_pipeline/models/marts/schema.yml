@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: int_weather_monthly
+    columns:
+      - name: price_month
+        tests:
+          - not_null
+          - unique
+
+  - name: mart_climate_food
+    columns:
+      - name: price_month
+        tests:
+          - not_null
+          - unique
